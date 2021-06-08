@@ -1,0 +1,102 @@
+<html>
+    <head>
+        <style>
+            .item {
+                display: inline-block;
+                cursor: pointer;
+                width: 100%;
+                height: 40px;
+                line-height: 40px;
+            }
+
+            .down {
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                background: url(./assets/img/down.png) 100% 100%;
+            }
+
+            .right {
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                background: url(./assets/img/right.png) 100% 100%;
+            }
+
+            .child {
+                cursor: default;
+                padding: 0 20px;
+            }
+        </style>
+        
+        <script src="./assets/js/lib/vue.min.js"></script>
+        <script src="./assets/js/lib/jquery.min.js"></script>
+
+    </head>
+
+
+    <body>
+        <div id="hehe" style="width: 300px; height: 400px; background-color:lightblue;">
+
+        </div>
+
+        <script src="./assets/js/vdw.js"></script>
+        <script>
+            var data = []
+
+            var renderDelegate = {
+                onDataCount: function() {
+                    return data.length
+                },
+
+                onRender: function(index) {
+                    var item = data[index]
+
+                    var str = '<a class="item" onclick="onTreeNodeClicked('+index+')">' +
+                        '<div class="' + (item.expand ? 'down' : 'right')+ '"></div>' + 
+                        '名称：' + item.name + "&nbsp;&nbsp;年龄：" + item.age;
+                    if (item.expand) {
+                        for(var i = 0; i < item.children.length; ++i) {
+                            var child_item = item.children[i]
+                            str += '<a class="item child">' + 
+                                '名称：' + child_item.name + "&nbsp;&nbsp;年龄：" + child_item.age + '</a>';
+                        }
+                    }
+                    
+                    str += '</a>'
+                    
+                    var dom = $(str)
+                    return dom
+                },
+
+                onRenderItemHeight: function(index) {
+                    var item = data[index]
+                    if (item.expand) {
+                        return item.children.length * 40 + 40
+                    }
+                    return 40
+                }
+            }
+
+
+            for(var i = 0; i < 200000; ++i) {
+                var item = {name: '张飞' + i, age: '180', children: []}
+                for(var j = 0; j < parseInt(Math.random() * 50) + 1; ++j) {
+                    item.children.push({
+                        name: '张小飞'+j,
+                        age: '20'
+                    })
+                }
+                data.push(item)
+            }
+
+            var vdw = new VirtualDomWrapper('#hehe', renderDelegate)
+
+            function onTreeNodeClicked(index) {
+                data[index].expand = !!!data[index].expand
+                vdw.reload()
+            }
+        </script>
+
+    </body>
+</html>
